@@ -2,3 +2,5 @@ parameters
 keys
 __pycache__
 .env
+.DS_Store
+.python-version

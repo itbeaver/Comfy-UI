@@ -25,27 +25,22 @@
     },
     "instanceSize": {
       "type": "string",
-      "defaultValue": "Standard_NV6_Promo",
+      "defaultValue": "Standard_NC4as_T4_v3",
       "metadata": {
         "description": "instance instance size"
       },
       "allowedValues": [
-        "Standard_NV6",
-        "Standard_NV6_Promo",
-        "Standard_NV6ads_A10_v5"
+        "Standard_NC4as_T4_v3"
       ]
     },
     "instancePriority": {
       "type": "string",
-      "defaultValue": "Spot",
+      "defaultValue": "Regular",
       "allowedValues": [
         "Low",
         "Regular",
         "Spot"
-      ],
-      "metadata": {
-        "description": "Instance priority"
-      }
+      ]
     },
     "enableNVIDIA": {
       "type": "string",
@@ -162,10 +157,6 @@
       "location": "[resourceGroup().location]",
       "properties": {
         "priority": "[parameters('instancePriority')]",
-        "evictionPolicy": "Deallocate",
-        "billingProfile": {
-          "maxPrice": -1
-        },
         "osProfile": {
           "computerName": "[parameters('instancePrefix')]",
           "adminUsername": "[parameters('adminUsername')]",

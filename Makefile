@@ -1,25 +1,28 @@
 # Set environment variables
-export COMPUTE_GROUP?=gpu-compute
-export STORAGE_GROUP?=gpu-storage
-export LOCATION?=eastus
+export COMPUTE_GROUP?=gpu-alcompute
+export STORAGE_GROUP?=gpu-alstorage
+export LOCATION?=swedencentral
 export COMPUTE_COUNT?=3
-export COMPUTE_SKU=Standard_NV6ads_A10_v5
-export COMPUTE_SKU=Standard_NV6_Promo
-export COMPUTE_SKU=Standard_NV6
-export COMPUTE_PRIORITY?=Spot
+# export COMPUTE_SKU=Standard_NC4as_T4_v3ads_A10_v5
+export COMPUTE_SKU=Standard_NC4as_T4_v3
+
+# export COMPUTE_SKU=Standard_NV6_Promo
+# export COMPUTE_SKU=Standard_NV6
+export COMPUTE_PRIORITY?=Regular
 export COMPUTE_INSTANCE?=gpu
 export COMPUTE_FQDN=$(COMPUTE_GROUP)-$(COMPUTE_INSTANCE).$(LOCATION).cloudapp.azure.com
-export ADMIN_USERNAME?=me
+export ADMIN_USERNAME?=albo
 export TIMESTAMP=`date "+%Y-%m-%d-%H-%M-%S"`
 export FILE_SHARES=config data models
-export STORAGE_ACCOUNT_NAME?=shared0$(shell echo $(COMPUTE_FQDN)|shasum|base64|tr '[:upper:]' '[:lower:]'|cut -c -16)
+export STORAGE_ACCOUNT_NAME?=shared11$(shell echo $(COMPUTE_FQDN)|shasum|base64|tr '[:upper:]' '[:lower:]'|cut -c -16)
 export SHARE_NAME?=data
 export HUGGINGFACE_TOKEN?=DEFINEME
 export SSH_PORT?=2211
-# This will set both your management and ingress NSGs to your public IP address 
+# This will set both your management and ingress NSGs to your public IP address
 # - since using "*" in an NSG may be disabled by policy
 export APPLY_ORIGIN_NSG?=true
 export SHELL=/bin/bash
+export SSL_CERT_DIR=/etc/ssl/certs
 
 
 # Permanent local overrides
@@ -30,6 +33,7 @@ SSH_KEY:=$(ADMIN_USERNAME).pem
 
 # Do not output warnings, do not validate or add remote host keys (useful when doing successive deployments or going through the load balancer)
 SSH_TO_MASTER:=ssh -p $(SSH_PORT) -q -A -i keys/$(SSH_KEY) $(ADMIN_USERNAME)@$(COMPUTE_FQDN) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+# SSH_TO_MASTER:=ssh -p $(SSH_PORT) -i keys/$(SSH_KEY) $(ADMIN_USERNAME)@$(COMPUTE_FQDN) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 
 .PHONY: tui deploy-storage deploy-compute redeploy destroy-compute destroy-storage destroy-environment
 
@@ -75,7 +79,7 @@ clean:
 	rm -rf parameters
 
 deploy-storage:
-	-az group create --name $(STORAGE_GROUP) --location $(LOCATION) --output table 
+	-az group create --name $(STORAGE_GROUP) --location $(LOCATION) --output table
 	-az storage account create \
 		--name $(STORAGE_ACCOUNT_NAME) \
 		--resource-group $(STORAGE_GROUP) \
@@ -88,7 +92,7 @@ deploy-storage:
 
 # Create a resource group and deploy the cluster resources inside it
 deploy-compute:
-	-az group create --name $(COMPUTE_GROUP) --location $(LOCATION) --output table 
+	-az group create --name $(COMPUTE_GROUP) --location $(LOCATION) --output table
 	az group deployment create \
 		--template-file templates/compute.json \
 		--parameters @parameters/compute.json \

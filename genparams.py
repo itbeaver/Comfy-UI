@@ -1,4 +1,4 @@
-#!/bin/env python3 
+#!/bin/env python3
 from base64 import b64encode
 from os import environ
 from json import dumps, loads
@@ -6,6 +6,12 @@ from os.path import exists, join
 from sys import stderr, stdout
 from string import Template
 from urllib.request import urlopen
+
+import urllib.request
+from urllib.request import urlopen
+import ssl
+import json
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def slurp(filename, as_template=True):
     with open("cloud-config/" + filename, "r") as config:
@@ -67,10 +73,10 @@ params = {
     "adminPublicKey": {
         "value": admin_public_key
     },
-    "instanceSSHPort": { 
+    "instanceSSHPort": {
         "value": int(environ.get('SSH_PORT', 22))
     },
-    "instanceManagementAllowedSourceAddressPrefixes": { 
+    "instanceManagementAllowedSourceAddressPrefixes": {
         "value": allowed_management_ips
     },
     "instanceCustomData": {
